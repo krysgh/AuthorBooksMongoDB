@@ -1,17 +1,13 @@
-﻿using MongoDB.Driver;
+﻿using AuthorBooksMongoDB.service;
+using AuthorBooksMongoDB.ui;
+using MongoDB.Driver;
+using System.ComponentModel.Design;
 
-void ShowAuthors(List<Author> authors)
-{
-   foreach(var author in authors)
-    {
-        Console.WriteLine(author);
-        Console.WriteLine("---");
-    }
-}
 
-void ShowBooks(List<Author> authors)
+
+void ShowBooks(List<Book> books)
 {
-    foreach (var author in authors)
+    foreach (var author in books)
     {
         Console.WriteLine(author);
         Console.WriteLine("---");
@@ -26,7 +22,13 @@ var colAuthors = database.GetCollection<Author>("Authors");
 
 var colBooks = database.GetCollection<Book>("Books");
 
+AuthorsCRUD AuthorsControl = new AuthorsCRUD();
 
+
+
+
+
+#region Examples
 //CRUD Authors
 
 /*
@@ -55,4 +57,4 @@ colAuthors.DeleteMany(_ => _.Country == "Reino Unido");
 
 ShowAuthors(await colAuthors.FindAsync(_ => true).Result.ToListAsync());
 */
-
+#endregion
