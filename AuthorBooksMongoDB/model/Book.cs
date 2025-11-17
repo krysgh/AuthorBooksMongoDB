@@ -23,7 +23,6 @@ public class Book
     public override string ToString()
     {
         return $"Id: {this.Id}\n" +
-               $"Id do Autor: {this.AuthorId}\n" +
                $"Título: {this.Title}\n" +
                $"Ano de publicação: {this.Year}";
     }

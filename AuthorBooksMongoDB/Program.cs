@@ -3,17 +3,6 @@ using AuthorBooksMongoDB.ui;
 using MongoDB.Driver;
 using System.ComponentModel.Design;
 
-
-
-void ShowBooks(List<Book> books)
-{
-    foreach (var author in books)
-    {
-        Console.WriteLine(author);
-        Console.WriteLine("---");
-    }
-}
-
 var client = new MongoClient("mongodb+srv://krysthiang_db_user:2SrPPyQ9hDbfbBFJ@interacaomongo.c0dlrc6.mongodb.net/");
 
 var database = client.GetDatabase("AuthorBooks");
@@ -22,13 +11,14 @@ var colAuthors = database.GetCollection<Author>("Authors");
 
 var colBooks = database.GetCollection<Book>("Books");
 
-AuthorsCRUD AuthorsControl = new AuthorsCRUD();
+
+MainMenu mainMenu = new MainMenu(new AuthorsMenu(new AuthorsCRUD(colAuthors)), 
+                    new BooksMenu(new BooksCRUD(colBooks,colAuthors)));
+
+await mainMenu.Run();
 
 
-
-
-
-#region Examples
+#region Test
 //CRUD Authors
 
 /*
@@ -41,7 +31,6 @@ colAuthors.InsertMany(new List<Author> {
 
 );
 
-ShowAuthors(await colAuthors.FindAsync(_ => true).Result.ToListAsync());
 */
 
 /*Alterar o registro de Jorge Amado - Brasil para Machado de Assis - Brasil (Id :6917811b7b53903712dcf2fd)
@@ -55,6 +44,5 @@ colAuthors.UpdateOne(
 /*Deletar todos os registros que possuem país de origem: Reino Unido
 colAuthors.DeleteMany(_ => _.Country == "Reino Unido");
 
-ShowAuthors(await colAuthors.FindAsync(_ => true).Result.ToListAsync());
 */
 #endregion

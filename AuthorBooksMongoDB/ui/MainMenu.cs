@@ -9,15 +9,15 @@ namespace AuthorBooksMongoDB.ui
     public class MainMenu
     {
 
-        private readonly AuthorsMenu _authorsMenu;
-        private readonly BooksMenu _booksMenu; 
+        private readonly AuthorsMenu AuthorsMenu;
+        private readonly BooksMenu BooksMenu; 
 
         public MainMenu(AuthorsMenu authorsMenu, BooksMenu booksMenu)
         {
-            _authorsMenu = authorsMenu;
-            _booksMenu = booksMenu;
+            this.AuthorsMenu = authorsMenu;
+            this.BooksMenu = booksMenu;
         }
-        public void Run()
+        public async Task Run()
         {
             int mainOption;
             do
@@ -33,10 +33,10 @@ namespace AuthorBooksMongoDB.ui
                 switch(mainOption)
                 {
                     case 1:
-                        //_authorsMenu.Run();
+                        await AuthorsMenu.Run();
                         break;
                     case 2:
-                        //_booksMenu.Run();
+                        await BooksMenu.Run();
                         break;
                     case 3:
                         Console.WriteLine("Encerrando o programa...");

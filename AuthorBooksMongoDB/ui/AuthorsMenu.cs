@@ -10,7 +10,14 @@ namespace AuthorBooksMongoDB.ui
     public class AuthorsMenu
     {
 
-        public static void Main()
+        public AuthorsCRUD AuthorsControl {  get; set; }
+
+        public AuthorsMenu(AuthorsCRUD authorsControl)
+        {
+            this.AuthorsControl = authorsControl;
+        }
+
+        public async Task Run()
         {
             int mainOption;
             do
@@ -28,26 +35,24 @@ namespace AuthorBooksMongoDB.ui
                 switch (mainOption)
                 {
                     case 1:
+                        await AuthorsControl.InsertAuthor();
                         break;
                     case 2:
-
+                        await AuthorsControl.ShowAllAuthors();
                         break;
                     case 3:
-
+                        await AuthorsControl.UpdateOneAuthor();
                         break;
                     case 4:
+                        await AuthorsControl.DeleteOneAuthor();
                         break;
                     case 5:
-                        
                         break;
                     default:
                         Console.WriteLine("Digite uma opção válida. Pressione qualquer tecla para avançar.");
                         Console.ReadKey();
                         break;
                 }
-
-
-
             } while (mainOption != 5);
         }
     }

@@ -10,10 +10,17 @@ namespace AuthorBooksMongoDB.service
 {
     public class AuthorsCRUD
     {
-        public List<Author> Authors { get; set; } = new List<Author>();
+        private readonly IMongoCollection<Author> collection;
+        public List<Author> Authors { get; set; }
 
-        public void InsertAuthor(IMongoCollection<Author> collection)
+        public AuthorsCRUD(IMongoCollection<Author> collection)
         {
+            this.collection = collection;
+        }
+
+        public async Task InsertAuthor()
+        {
+            Authors = new List<Author>();
             int repeat = 0;
             do
             {
@@ -26,6 +33,10 @@ namespace AuthorBooksMongoDB.service
 
                 Authors.Add(new Author(name, country));
 
+                Console.Clear();
+                PositiveMessage("AUTOR ADICIONADO COM SUCESSO!");
+
+
                 Console.WriteLine("Deseja inserir outro autor?");
                 Console.WriteLine("1 - Sim");
                 Console.WriteLine("2 - Não");
@@ -35,21 +46,21 @@ namespace AuthorBooksMongoDB.service
 
             } while (repeat == 1);
 
-            collection.InsertMany(Authors);
+            await collection.InsertManyAsync(Authors);
             
         }
 
-        public bool FindAuthorById(IMongoCollection<Author> collection, string id)
+        public async Task<bool> FindAuthorById(string id)
         {
-            return collection.Find(_ => _.Id == id).Any();
+            return await collection.Find(_ => _.Id == id).AnyAsync();
         }
 
-        public void ShowAllAuthors(IMongoCollection<Author> collection)
+        public async Task ShowAllAuthors()
         {
             Console.Clear();
             Console.WriteLine("----- LISTA DE AUTORES -----");
 
-            Authors = collection.Find(_ => true).ToList();
+            Authors = await collection.Find(_ => true).ToListAsync();
 
             if(Authors.Count > 0)
             foreach (var author in Authors)
@@ -59,9 +70,11 @@ namespace AuthorBooksMongoDB.service
             }
             else
                 Console.WriteLine("Não há autores nessa lista.");
+            Console.WriteLine("Pressione qualquer tecla para voltar para Autores.");
+            Console.ReadKey();
         }
 
-        public void UpdateOneAuthor(IMongoCollection<Author> collection)
+        public async Task UpdateOneAuthor()
         {
             int repeat = 0;
             do
@@ -87,7 +100,7 @@ namespace AuthorBooksMongoDB.service
                 }while(repeatIdTreatment == 1);
                 
 
-                if (FindAuthorById(collection, id))
+                if (await FindAuthorById(id))
                 {
                     PositiveMessage("AUTOR ENCONTRADO!");
 
@@ -96,7 +109,7 @@ namespace AuthorBooksMongoDB.service
                     Console.Write("Informe o país de origem do autor: ");
                     var country = Console.ReadLine()!;
 
-                    collection.UpdateOne(_ => _.Id == id,
+                    await collection.UpdateOneAsync(_ => _.Id == id,
                                          Builders<Author>.Update
                                          .Set(_ => _.Name,name)
                                          .Set(_ => _.Country,country));
@@ -121,10 +134,9 @@ namespace AuthorBooksMongoDB.service
                 }
 
             } while (repeat == 1);
-
         }
 
-        public void DeleteOneAuthor(IMongoCollection<Author> collection)
+        public async Task DeleteOneAuthor()
         {
             int repeat = 0;
             do
@@ -150,19 +162,40 @@ namespace AuthorBooksMongoDB.service
                 } while (repeatIdTreatment == 1);
 
 
-                if (FindAuthorById(collection, id))
+                if (await FindAuthorById(id))
                 {
                     PositiveMessage("AUTOR ENCONTRADO!");
 
-                    collection.DeleteOne(_ => _.Id == id);
+                    var author = collection.Find(_ => _.Id == id).FirstOrDefault();
 
-                    PositiveMessage("AUTOR DELETADO COM SUCESSO!");
-
-                    Console.WriteLine("Deseja deletar outro autor?");
+                    Console.WriteLine(author);
+                    AlertMessage("Deseja realmente deletar este autor?");
                     Console.WriteLine("1 - Sim");
                     Console.WriteLine("2 - Não");
                     Console.Write("Digite a opção desejada: ");
-                    repeat = Int32.Parse(Console.ReadLine()!);
+                    var option = Int32.Parse(Console.ReadLine()!);
+
+                    switch (option)
+                    {
+                        case 1:
+                            await collection.DeleteOneAsync(_ => _.Id == id);
+
+                            PositiveMessage("AUTOR DELETADO COM SUCESSO!");
+
+                            Console.WriteLine("Deseja deletar outro autor?");
+                            Console.WriteLine("1 - Sim");
+                            Console.WriteLine("2 - Não");
+                            Console.Write("Digite a opção desejada: ");
+                            repeat = Int32.Parse(Console.ReadLine()!);
+                            break;
+                        case 2:
+                            repeat = 1;
+                            break;
+                        default:
+                            Console.WriteLine("Digite uma opção válida.");
+                            repeat = 1;
+                            break;
+                    }
                 }
                 else
                 {
